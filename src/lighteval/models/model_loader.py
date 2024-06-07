@@ -27,6 +27,7 @@ from lighteval.logging.hierarchical_logger import hlog
 from lighteval.models.adapter_model import AdapterModel
 from lighteval.models.base_model import BaseModel
 from lighteval.models.delta_model import DeltaModel
+from lighteval.models.openlm_model import OpenLMModel
 from lighteval.models.endpoint_model import InferenceEndpointModel
 from lighteval.models.model_config import (
     AdapterModelConfig,
@@ -36,6 +37,7 @@ from lighteval.models.model_config import (
     InferenceEndpointModelConfig,
     InferenceModelConfig,
     TGIModelConfig,
+    OpenLMModelConfig,
 )
 from lighteval.models.tgi_model import ModelClient
 from lighteval.utils import NO_TGI_ERROR_MSG, is_accelerate_available, is_tgi_available
@@ -79,6 +81,9 @@ def load_model(  # noqa: C901
     if isinstance(config, InferenceEndpointModelConfig) or isinstance(config, InferenceModelConfig):
         return load_model_with_inference_endpoints(config, env_config=env_config)
 
+    if isinstance(config, OpenLMModelConfig):
+        return load_model_with_openlm(config, env_config=env_config)
+
     if isinstance(config, BaseModelConfig):
         return load_model_with_accelerate_or_default(config=config, env_config=env_config)
 
@@ -111,6 +116,31 @@ def load_model_with_inference_endpoints(config: InferenceEndpointModelConfig, en
         model_dtype=config.model_dtype or "default",
         model_size=-1,
     )
+    return model, model_info
+
+
+def load_model_with_openlm(config, env_config):
+    hlog("Loading model with OpenLM")
+    
+    model = OpenLMModel(config=config, env_config=env_config)
+    model_name = model.model_name
+    model_sha = model.model_sha
+    model_precision = str(model.precision)
+    if is_accelerate_available():
+        model_size, _ = calculate_maximum_sizes(model.model)
+        model_size = convert_bytes(model_size)
+    else:
+        model_size = -1
+
+    model_info = ModelInfo(
+        model_name=model_name,
+        model_sha=model_sha,
+        model_dtype=model_precision,
+        model_size=model_size,
+    )
+
+    hlog(f"Model info: {model_info}")
+
     return model, model_info
 
 

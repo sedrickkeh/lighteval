@@ -35,8 +35,13 @@ def get_parser():
     task_type_group = parser.add_mutually_exclusive_group(required=True)
 
     # Model type: either use a config file or simply the model name
-    task_type_group.add_argument("--model_config_path")
+    task_type_group.add_argument("--openlm_model_type")
     task_type_group.add_argument("--model_args")
+
+    # OpenLM
+    parser.add_argument("--openlm_model_path", type=str, help="Path to OpenLM model")
+    parser.add_argument("--openlm_model_config", type=str, help="Path to OpenLM config")
+    parser.add_argument("--tokenizer", type=str, default="EleutherAI/gpt-neox-20b")
 
     # Debug
     parser.add_argument("--max_samples", type=int, default=None)
