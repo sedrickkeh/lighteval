@@ -13,6 +13,18 @@
 
 A lightweight framework for LLM evaluation
 
+## Quickstart 
+
+OpenLM models
+```bash
+accelerate launch -m run_evals_accelerate --override_batch_size 2 --output_dir results/ --tasks examples/tasks/mmlu.txt --openlm_model_type open_lm_7b --openlm_model_path /data3/dclm_1b/hero_run_2/epoch_6.pt --openlm_model_config /data3/dclm_1b/hero_run_2/params.txt
+```
+
+HF models
+```bash
+accelerate launch -m run_evals_accelerate --model_args pretrained=HuggingFaceFW/ablation-model-fineweb-edu --override_batch_size 4 --output_dir results/ --tasks examples/tasks/mmlu.txt --custom_tasks community_tasks.lighteval_tasks
+```
+
 ## Context
 LightEval is a lightweight LLM evaluation suite that Hugging Face has been using internally with the recently released LLM data processing library [datatrove](https://github.com/huggingface/datatrove) and LLM training library [nanotron](https://github.com/huggingface/nanotron).
 
